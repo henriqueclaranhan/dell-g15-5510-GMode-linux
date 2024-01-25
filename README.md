@@ -1,6 +1,6 @@
-# dell-g15-GMode-toggle-linux
+# dell-g15-5510-GMode-linux
 
-## works on DELL G15-5535 and DELL G15-5525 (AMD version)
+## works on DELL G15-5510 and DELL G15-5520
 
 Python script to control dell GMode on linux
 
