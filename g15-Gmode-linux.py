@@ -1,14 +1,18 @@
 #!/usr/bin/python3
+# ACPI methods from https://wiki.archlinux.org/title/Dell_G15_5525
+
 import os
 import sys
 
-# evevate privilages and run itself as root, use sudo
-def elevate():
+MODULE_NOT_LOADED_MSG = 'acpi_call module not loaded'
+
+def gainRootPrivileges():
     if os.getuid() == 0:
         return
 
     args = [sys.executable] + sys.argv
     commands = []
+
     # uncomment below line to use sudo instead of pkexec
     # commands.append(["sudo"] + args)
 
@@ -18,8 +22,7 @@ def elevate():
     for args in commands:
         os.execlp(args[0], *args)
 
-# check if the fan is turned on
-def fanOn():
+def isFanOn():
     try:
         with open('/proc/acpi/call', 'w') as fanStatus:
             fanStatus.write('\\_SB.AMWW.WMAX 0 0x14 {0x0b, 0x00, 0x00, 0x00}')
@@ -33,57 +36,47 @@ def fanOn():
                 return False
 
     except:
-        print('acpi_call module not loaded')
+        print(MODULE_NOT_LOADED_MSG)
 
 
-# turn off GMode
-def turnOff():
+def turnOffFan():
     print('turnign off')
-    # echo "\_SB.AMWW.WMAX 0 0x15 {1, 0xa0, 0x00, 0x00}" > /proc/acpi/call
-    # echo "\_SB.AMWW.WMAX 0 0x25 {1, 0x00, 0x00, 0x00}" > /proc/acpi/call
-    # from https://wiki.archlinux.org/title/Dell_G15_5525
 
     try:
         with open('/proc/acpi/call', 'w') as acpi_call_0x15:
             acpi_call_0x15.write('\\_SB.AMWW.WMAX 0 0x15 {1, 0xa0, 0x00, 0x00}')
     except FileNotFoundError:
-        print('acpi_call module not loaded')
+        print(MODULE_NOT_LOADED_MSG)
 
     try:
         with open('/proc/acpi/call', 'w') as acpi_call_0x25:
             acpi_call_0x25.write('\\_SB.AMWW.WMAX 0 0x25 {1, 0x00, 0x00, 0x00}')
     except FileNotFoundError:
-        print('acpi_call module not loaded')
+        print(MODULE_NOT_LOADED_MSG)
 
 
-
-# turn on GMode
-def turnOn():
+def turnOnFan():
     print('turning on')
-    # echo "\_SB.AMWW.WMAX 0 0x15 {1, 0xab, 0x00, 0x00}" > /proc/acpi/call
-    # echo "\_SB.AMWW.WMAX 0 0x25 {1, 0x01, 0x00, 0x00}" > /proc/acpi/call
-    # from https://wiki.archlinux.org/title/Dell_G15_5525
 
     try:
         with open('/proc/acpi/call', 'w') as acpi_call_0x15:
             acpi_call_0x15.write('\\_SB.AMWW.WMAX 0 0x15 {1, 0xab, 0x00, 0x00}')
     except FileNotFoundError:
-        print('acpi_call module not loaded')
+        print(MODULE_NOT_LOADED_MSG)
 
     try:
         with open('/proc/acpi/call', 'w') as acpi_call_0x25:
             acpi_call_0x25.write('\\_SB.AMWW.WMAX 0 0x25 {1, 0x01, 0x00, 0x00}')
     except FileNotFoundError:
-        print('acpi_call module not loaded')
+        print(MODULE_NOT_LOADED_MSG)
 
 def main():
-    # gain root privilages
-    elevate()
+    gainRootPrivileges()
 
-    if fanOn():
-        turnOff()
+    if isFanOn():
+        turnOffFan()
     else:
-        turnOn()
+        turnOnFan()
 
 if __name__ == "__main__":
     main()
